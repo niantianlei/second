@@ -7,6 +7,10 @@ import org.apache.ibatis.annotations.Select;
 
 import nian.shop.entity.User;
 
+/**
+ * @author Niantianlei
+ * @date 2018年5月17日 下午2:16:20
+ */
 @Mapper
 public interface UserDao {
 	

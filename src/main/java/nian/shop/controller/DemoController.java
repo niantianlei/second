@@ -11,7 +11,11 @@ import nian.shop.entity.User;
 import nian.shop.redis.UserKey;
 import nian.shop.service.RedisService;
 import nian.shop.service.UserService;
-
+/**
+ * 
+ * @author Niantianlei
+ * @date 2018年5月17日 下午1:16:03
+ */
 @Controller
 @RequestMapping("/demo")
 public class DemoController {

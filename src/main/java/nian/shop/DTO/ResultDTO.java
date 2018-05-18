@@ -3,7 +3,12 @@ package nian.shop.DTO;
 import java.io.Serializable;
 
 import nian.shop.utils.ResultCode;
-
+/**
+ * 
+ * @author Niantianlei
+ * @date 2018年5月18日 下午3:15:20
+ * @param <T>
+ */
 public class ResultDTO<T> implements Serializable {
 	
 	private static final long serialVersionUID = -3091492566196534172L;
