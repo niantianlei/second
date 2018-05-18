@@ -1,0 +1,9 @@
+Manifest-Version: 1.0
+Implementation-Title: second
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: Niantianlei
+Implementation-Vendor-Id: nian.login
+Build-Jdk: 1.8.0_101
+Implementation-URL: http://maven.apache.org
+Created-By: Maven Integration for Eclipse
+
