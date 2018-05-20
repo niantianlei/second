@@ -26,7 +26,7 @@ public class MD5Util {
 		return md5(output);
 	}
 	
-	//
+	
 	public static String FromInputToOutput(String input, String saltInDB) {
 		String str = addSaltProcess(input);
 		String output = constructDBPassword(str, saltInDB);
@@ -34,10 +34,10 @@ public class MD5Util {
 	}
 	public static void main(String[] args) {
 		//产生salt
-//		String uuuid = UUID.randomUUID().toString().substring(0, 8);
-//		System.out.println(uuuid);
+		String uuuid = UUID.randomUUID().toString().substring(0, 8);
+		System.out.println(uuuid);
 		
-		System.out.println(FromInputToOutput("123456", "32165498"));
+		System.out.println(addSaltProcess("123456")); //4672d95aab2010d7501dee60f1ef1ee9
 		System.out.println(constructDBPassword(addSaltProcess("123456"), "32165498"));
 	}
 	
