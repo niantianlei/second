@@ -7,6 +7,7 @@ import nian.shop.DTO.ResultDTO;
 import nian.shop.VO.LoginVO;
 import nian.shop.dao.SecondUserDao;
 import nian.shop.entity.SecondUser;
+import nian.shop.exception.SecondException;
 import nian.shop.utils.MD5Util;
 import nian.shop.utils.ResultCode;
 
@@ -30,25 +31,26 @@ public class SecondUserService {
 		return secondUserDao.getById(id);
 	}
 
-	public ResultDTO<String> login(LoginVO loginVO) {
+	public boolean login(LoginVO loginVO) {
 		if(loginVO == null) {
-			return ResultDTO.error(ResultCode.REQUEST_ERROR.getCode(), "请求为空");
+			throw new SecondException(ResultDTO.error(ResultCode.SERVER_ERROR.getCode(), "服务端异常"));
 		}
 		String mobile = loginVO.getMobile();
 		String formPassword = loginVO.getPassword();
 		//判断手机号是否存在
 		SecondUser user = getById(Long.parseLong(mobile));
 		if(user == null) {
-			return ResultDTO.error(ResultCode.REQUEST_ERROR.getCode(), "手机号不存在");
+			throw new SecondException(ResultDTO.error(ResultCode.REQUEST_ERROR.getCode(), "手机号码不存在"));
 		}
 		//验证密码
 		String dbPassword = user.getPassword();
 		String saltDB = user.getSalt();
 		String afterProcessPassword = MD5Util.constructDBPassword(formPassword, saltDB);
 		if(!afterProcessPassword.equals(dbPassword)) {
-			return ResultDTO.error(ResultCode.REQUEST_ERROR.getCode(), "密码错误");
+			throw new SecondException(ResultDTO.error(ResultCode.REQUEST_ERROR.getCode(), "密码错误"));
+
 		}
-		return ResultDTO.success("success");
+		return true;
 	}
 	
 
