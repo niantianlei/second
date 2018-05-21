@@ -1,6 +1,7 @@
 package nian.shop.controller;
 
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
@@ -31,10 +32,10 @@ public class LoginController {
     
     @RequestMapping("/do_login")
     @ResponseBody
-    public ResultDTO<Boolean> doLogin(@Valid LoginVO loginVO) {
+    public ResultDTO<Boolean> doLogin(HttpServletResponse response, @Valid LoginVO loginVO) {
     	log.info(loginVO.toString());
     	//登录
-    	secondUserService.login(loginVO);
+    	secondUserService.login(response, loginVO);
     	return ResultDTO.success(true);
     }
 }

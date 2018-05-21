@@ -1,5 +1,8 @@
 package nian.shop.service;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -8,8 +11,11 @@ import nian.shop.VO.LoginVO;
 import nian.shop.dao.SecondUserDao;
 import nian.shop.entity.SecondUser;
 import nian.shop.exception.SecondException;
+import nian.shop.redis.SecondUserKey;
 import nian.shop.utils.MD5Util;
 import nian.shop.utils.ResultCode;
+import nian.shop.utils.UUIDUtil;
+import nian.shop.utils.ValidatorUtil;
 
 /**
  * 
@@ -19,7 +25,7 @@ import nian.shop.utils.ResultCode;
 @Service
 public class SecondUserService {
 
-	public static final String COOKI_NAME_TOKEN = "token";
+	public static final String COOKIE_NAME_TOKEN = "token";
 	
 	@Autowired
 	SecondUserDao secondUserDao;
@@ -30,8 +36,15 @@ public class SecondUserService {
 	public SecondUser getById(long id) {
 		return secondUserDao.getById(id);
 	}
+	
+	public SecondUser getByToken(String token) {
+		if(ValidatorUtil.isEmpty(token)) {
+			return null;
+		}
+		return redisService.get(SecondUserKey.token, token, SecondUser.class);
+	}
 
-	public boolean login(LoginVO loginVO) {
+	public boolean login(HttpServletResponse response ,LoginVO loginVO) {
 		if(loginVO == null) {
 			throw new SecondException(ResultDTO.error(ResultCode.SERVER_ERROR.getCode(), "服务端异常"));
 		}
@@ -50,8 +63,17 @@ public class SecondUserService {
 			throw new SecondException(ResultDTO.error(ResultCode.REQUEST_ERROR.getCode(), "密码错误"));
 
 		}
+		//生成cookie
+		String token = UUIDUtil.uuid();
+		redisService.set(SecondUserKey.token, token, user);
+		Cookie cookie = new Cookie(COOKIE_NAME_TOKEN, token);
+		cookie.setMaxAge(SecondUserKey.token.expireSeconds());
+		cookie.setPath("/");
+		response.addCookie(cookie);
 		return true;
 	}
+
+
 	
 
 	/*public MiaoshaUser getByToken(HttpServletResponse response, String token) {

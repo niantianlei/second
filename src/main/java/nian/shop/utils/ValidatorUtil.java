@@ -14,6 +14,10 @@ public class ValidatorUtil {
 		Matcher m = mobile_pattern.matcher(src);
 		return m.matches();
 	}
+	
+	public static boolean isEmpty(final CharSequence cs) {
+        return cs == null || cs.length() == 0;
+    }
 	/*public static void main(String[] args) {
 		System.out.println(isMobile("13812345678"));
 		System.out.println(isMobile("1381234567"));
