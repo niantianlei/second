@@ -37,11 +37,14 @@ public class SecondUserService {
 		return secondUserDao.getById(id);
 	}
 	
-	public SecondUser getByToken(String token) {
+	public SecondUser getByToken(HttpServletResponse response, String token) {
 		if(ValidatorUtil.isEmpty(token)) {
 			return null;
 		}
-		return redisService.get(SecondUserKey.token, token, SecondUser.class);
+		SecondUser user = redisService.get(SecondUserKey.token, token, SecondUser.class);
+		//刷新有效时间
+		if(user != null) addCookie(response, user);
+		return user;
 	}
 
 	public boolean login(HttpServletResponse response ,LoginVO loginVO) {
@@ -61,63 +64,19 @@ public class SecondUserService {
 		String afterProcessPassword = MD5Util.constructDBPassword(formPassword, saltDB);
 		if(!afterProcessPassword.equals(dbPassword)) {
 			throw new SecondException(ResultDTO.error(ResultCode.REQUEST_ERROR.getCode(), "密码错误"));
-
 		}
-		//生成cookie
+		
+		addCookie(response, user);
+		return true;
+	}
+	//生成cookie
+	private void addCookie(HttpServletResponse response,SecondUser user) {
 		String token = UUIDUtil.uuid();
 		redisService.set(SecondUserKey.token, token, user);
 		Cookie cookie = new Cookie(COOKIE_NAME_TOKEN, token);
 		cookie.setMaxAge(SecondUserKey.token.expireSeconds());
 		cookie.setPath("/");
 		response.addCookie(cookie);
-		return true;
 	}
 
-
-	
-
-	/*public MiaoshaUser getByToken(HttpServletResponse response, String token) {
-		if(StringUtils.isEmpty(token)) {
-			return null;
-		}
-		MiaoshaUser user = redisService.get(MiaoshaUserKey.token, token, MiaoshaUser.class);
-		//延长有效期
-		if(user != null) {
-			addCookie(response, token, user);
-		}
-		return user;
-	}
-	
-
-	public boolean login(HttpServletResponse response, LoginVo loginVo) {
-		if(loginVo == null) {
-			throw new GlobalException(CodeMsg.SERVER_ERROR);
-		}
-		String mobile = loginVo.getMobile();
-		String formPass = loginVo.getPassword();
-		//判断手机号是否存在
-		MiaoshaUser user = getById(Long.parseLong(mobile));
-		if(user == null) {
-			throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
-		}
-		//验证密码
-		String dbPass = user.getPassword();
-		String saltDB = user.getSalt();
-		String calcPass = MD5Util.formPassToDBPass(formPass, saltDB);
-		if(!calcPass.equals(dbPass)) {
-			throw new GlobalException(CodeMsg.PASSWORD_ERROR);
-		}
-		//生成cookie
-		String token	 = UUIDUtil.uuid();
-		addCookie(response, token, user);
-		return true;
-	}
-	
-	private void addCookie(HttpServletResponse response, String token, MiaoshaUser user) {
-		redisService.set(MiaoshaUserKey.token, token, user);
-		Cookie cookie = new Cookie(COOKI_NAME_TOKEN, token);
-		cookie.setMaxAge(MiaoshaUserKey.token.expireSeconds());
-		cookie.setPath("/");
-		response.addCookie(cookie);
-	}*/
 }
