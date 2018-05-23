@@ -43,7 +43,7 @@ public class SecondUserService {
 		}
 		SecondUser user = redisService.get(SecondUserKey.token, token, SecondUser.class);
 		//刷新有效时间
-		if(user != null) addCookie(response, user);
+		if(user != null) addCookie(response, token, user);
 		return user;
 	}
 
@@ -65,13 +65,12 @@ public class SecondUserService {
 		if(!afterProcessPassword.equals(dbPassword)) {
 			throw new SecondException(ResultDTO.error(ResultCode.REQUEST_ERROR.getCode(), "密码错误"));
 		}
-		
-		addCookie(response, user);
+		String token = UUIDUtil.uuid();
+		addCookie(response, token, user);
 		return true;
 	}
 	//生成cookie
-	private void addCookie(HttpServletResponse response,SecondUser user) {
-		String token = UUIDUtil.uuid();
+	private void addCookie(HttpServletResponse response, String token, SecondUser user) {
 		redisService.set(SecondUserKey.token, token, user);
 		Cookie cookie = new Cookie(COOKIE_NAME_TOKEN, token);
 		cookie.setMaxAge(SecondUserKey.token.expireSeconds());
