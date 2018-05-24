@@ -47,7 +47,7 @@ public class SecondUserService {
 		return user;
 	}
 
-	public boolean login(HttpServletResponse response ,LoginVO loginVO) {
+	public String login(HttpServletResponse response ,LoginVO loginVO) {
 		if(loginVO == null) {
 			throw new SecondException(ResultDTO.error(ResultCode.SERVER_ERROR.getCode(), "服务端异常"));
 		}
@@ -67,7 +67,7 @@ public class SecondUserService {
 		}
 		String token = UUIDUtil.uuid();
 		addCookie(response, token, user);
-		return true;
+		return token;
 	}
 	//生成cookie
 	private void addCookie(HttpServletResponse response, String token, SecondUser user) {
