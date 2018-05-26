@@ -3,9 +3,12 @@ package nian.shop.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 
+import nian.shop.DTO.ResultDTO;
 import nian.shop.VO.GoodsVo;
 import nian.shop.entity.OrderInfo;
 import nian.shop.entity.SecondOrder;
@@ -36,30 +39,28 @@ public class SecondController {
 	@Autowired
 	SecondKillService secondKillService;
 	
-    @RequestMapping("/do_secondKill")
-    public String list(Model model, SecondUser user,
+    @PostMapping("/do_secondKill")
+    @ResponseBody
+    public ResultDTO<OrderInfo> secondKill(Model model, SecondUser user,
     		@RequestParam("goodsId")long goodsId) {
     	model.addAttribute("user", user);
     	if(user == null) {
-    		return "login";
+    		return ResultDTO.fail("session错误");
     	}
     	//判断库存
     	GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
     	int stock = goods.getStockCount();
     	if(stock <= 0) {
-    		model.addAttribute("errmsg", SecondResEnum.SECOND_KILL_OVER.getMsg());
-    		return "secondKill_fail";
+    		return ResultDTO.fail("秒杀结束");
     	}
     	//判断是否已经秒杀到了
     	SecondOrder order = orderService.getSecondOrderByUserIdandGoodsId(user.getId(), goodsId);
     	if(order != null) {
-    		model.addAttribute("errmsg", SecondResEnum.SECOND_KILL_REPEAT.getMsg());
-    		return "secondKill_fail";
+    		//model.addAttribute("errmsg", SecondResEnum.SECOND_KILL_REPEAT.getMsg());
+    		return ResultDTO.fail("重复秒杀错误");
     	}
     	//减库存 下订单 写入秒杀订单
     	OrderInfo orderInfo = secondKillService.secondKill(user, goods);
-    	model.addAttribute("orderInfo", orderInfo);
-    	model.addAttribute("goods", goods);
-        return "order_detail";
+        return ResultDTO.success(orderInfo);
     }
 }

@@ -34,7 +34,38 @@ public class SecondUserService {
 	RedisService redisService;
 	
 	public SecondUser getById(long id) {
-		return secondUserDao.getById(id);
+		//缓存优化
+		/*SecondUser user = redisService.get(SecondUserKey.getById, "" + id, SecondUser.class);
+		if(user != null) {
+			return user;
+		}
+		user = secondUserDao.getById(id);
+		if(user != null) {
+			redisService.set(SecondUserKey.getById, "" + id, SecondUser.class);
+		}*/
+		SecondUser user = secondUserDao.getById(id);
+		return user;
+	}
+	
+	public boolean updatePassword(String token, long id, String newPassword) {
+		SecondUser user = getById(id);
+		if(user == null) {
+			throw new SecondException(ResultDTO.error("user不存在"));
+		}
+		//更新数据库
+		SecondUser toBeUpdate = new SecondUser();
+		toBeUpdate.setId(id);
+		toBeUpdate.setPassword(MD5Util.constructDBPassword(newPassword, user.getSalt()));
+		secondUserDao.update(toBeUpdate);
+		/**
+		 * 处理缓存
+		 */
+		//删user
+		redisService.delete(SecondUserKey.getById, "" + id);
+		//更新token
+		user.setPassword(toBeUpdate.getPassword());
+		redisService.set(SecondUserKey.token, token, user);
+		return true;
 	}
 	
 	public SecondUser getByToken(HttpServletResponse response, String token) {
@@ -47,7 +78,7 @@ public class SecondUserService {
 		return user;
 	}
 
-	public String login(HttpServletResponse response ,LoginVO loginVO) {
+	public String login(HttpServletResponse response, LoginVO loginVO) {
 		if(loginVO == null) {
 			throw new SecondException(ResultDTO.error(ResultCode.SERVER_ERROR.getCode(), "服务端异常"));
 		}

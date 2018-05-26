@@ -22,7 +22,7 @@ primary key(id)
 )ENGINE=InnoDB AUTO_INCREMENT=3 default charset=utf8mb4;
 
 insert into `second_goods` values(1,1,0.01,4,'2018-05-23 10:00:00','2018-06-10 20:00:00'),(2,2,0.01,10,'2018-05-25 10:00:00','2018-06-10 20:00:00');
-
+insert into `second_goods` values(3,3,0.01,20,'2018-06-23 10:00:00','2018-06-25 20:00:00')
 # 订单表  
 create table `order_info`(
 `id` bigint(20) not null auto_increment,

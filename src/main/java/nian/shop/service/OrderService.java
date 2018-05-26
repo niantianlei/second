@@ -42,6 +42,10 @@ public class OrderService {
 		orderDao.insertSecondOrder(secondOrder);
 		return orderInfo;
 	}
+
+	public OrderInfo getOrderById(long orderId) {
+		return orderDao.getOrderById(orderId);
+	}
 	
 
 }

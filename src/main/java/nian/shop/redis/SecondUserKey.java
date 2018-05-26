@@ -7,4 +7,5 @@ public class SecondUserKey extends BasePrefix{
 		super(expireSeconds, prefix);
 	}
 	public static SecondUserKey token = new SecondUserKey(TOKEN_EXPIRE_TIME, "tk");
+	public static SecondUserKey getById = new SecondUserKey(TOKEN_EXPIRE_TIME, "id");
 }

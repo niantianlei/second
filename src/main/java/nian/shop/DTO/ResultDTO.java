@@ -20,6 +20,13 @@ public class ResultDTO<T> implements Serializable {
 		return new ResultDTO<T>(data);
 	}
 	
+	public static  <T> ResultDTO<T> fail(String msg){
+		ResultDTO<T> r = new ResultDTO<>();
+		r.setCode(-1);
+		r.setMsg(msg);
+		
+		return r;
+	}
 	public static <T> ResultDTO<T> error(T errorInfo) {
 		ResultDTO<T> resultDTO = new ResultDTO<>(errorInfo);
 		resultDTO.setCode(ResultCode.FAIL.getCode());
