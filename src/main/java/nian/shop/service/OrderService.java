@@ -11,15 +11,20 @@ import nian.shop.dao.OrderDao;
 import nian.shop.entity.OrderInfo;
 import nian.shop.entity.SecondOrder;
 import nian.shop.entity.SecondUser;
+import nian.shop.redis.OrderKey;
 import nian.shop.utils.SecondStatusEnum;
 
 @Service
 public class OrderService {
 	@Autowired
 	OrderDao orderDao;
+	@Autowired
+	RedisService redisService;
 	
 	public SecondOrder getSecondOrderByUserIdandGoodsId(long userId, long goodsId) {
-		return orderDao.getSecondOrderByUserIdandGoodsId(userId, goodsId);
+//		return orderDao.getSecondOrderByUserIdandGoodsId(userId, goodsId);
+		//查缓存
+		return redisService.get(OrderKey.getMiaoshaOrderByUidGid, "" + userId + "_" + goodsId, SecondOrder.class);
 	}
 
 	@Transactional
@@ -40,6 +45,8 @@ public class OrderService {
 		secondOrder.setOrderId(orderId);
 		secondOrder.setUserId(user.getId());
 		orderDao.insertSecondOrder(secondOrder);
+		//写缓存
+		redisService.set(OrderKey.getMiaoshaOrderByUidGid, "" + user.getId() + "_" + goods.getId(), secondOrder);
 		return orderInfo;
 	}
 
