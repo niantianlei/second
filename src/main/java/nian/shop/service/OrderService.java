@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import nian.shop.VO.GoodsVo;
@@ -26,8 +28,7 @@ public class OrderService {
 		//查缓存
 		return redisService.get(OrderKey.getMiaoshaOrderByUidGid, "" + userId + "_" + goodsId, SecondOrder.class);
 	}
-
-	@Transactional
+	@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.DEFAULT) 
 	public OrderInfo createOrder(SecondUser user, GoodsVo goods) {
 		OrderInfo orderInfo = new OrderInfo();
 		orderInfo.setCreateDate(new Date());
@@ -49,6 +50,7 @@ public class OrderService {
 		redisService.set(OrderKey.getMiaoshaOrderByUidGid, "" + user.getId() + "_" + goods.getId(), secondOrder);
 		return orderInfo;
 	}
+	
 
 	public OrderInfo getOrderById(long orderId) {
 		return orderDao.getOrderById(orderId);

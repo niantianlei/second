@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import nian.shop.DTO.ResultDTO;
 import nian.shop.entity.User;
 import nian.shop.redis.UserKey;
+import nian.shop.service.MqSender;
 import nian.shop.service.RedisService;
 import nian.shop.service.UserService;
 
@@ -19,6 +20,8 @@ public class DemoController {
 	UserService userService;
 	@Autowired
 	RedisService redisService;
+	@Autowired
+	MqSender mqSender;
 
 	@RequestMapping("/")
 	@ResponseBody
@@ -73,5 +76,19 @@ public class DemoController {
 		user.setName("123456");
 		redisService.set(UserKey.getById, "" + 1, user);
 		return ResultDTO.success(true);
+	}
+	
+	@RequestMapping("/mq")
+	@ResponseBody
+	ResultDTO<String> mq() {
+		mqSender.send("hello, world");
+		return ResultDTO.success("hello, world");
+	}
+	
+	@RequestMapping("/mq/topic")
+	@ResponseBody
+	ResultDTO<String> mq_topic() {
+		mqSender.sendTopic("hello, world");
+		return ResultDTO.success("hello, world");
 	}
 }
