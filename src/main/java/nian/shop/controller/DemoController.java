@@ -78,17 +78,30 @@ public class DemoController {
 		return ResultDTO.success(true);
 	}
 	
-	@RequestMapping("/mq")
-	@ResponseBody
-	ResultDTO<String> mq() {
-		mqSender.send("hello, world");
-		return ResultDTO.success("hello, world");
-	}
-	
-	@RequestMapping("/mq/topic")
-	@ResponseBody
-	ResultDTO<String> mq_topic() {
-		mqSender.sendTopic("hello, world");
-		return ResultDTO.success("hello, world");
-	}
+//	@RequestMapping("/mq")
+//	@ResponseBody
+//	ResultDTO<String> mq() {
+//		mqSender.send("hello, world");
+//		return ResultDTO.success("hello, world");
+//	}
+//	
+//	@RequestMapping("/mq/topic")
+//	@ResponseBody
+//	ResultDTO<String> mq_topic() {
+//		mqSender.sendTopic("hello, world");
+//		return ResultDTO.success("hello, world");
+//	}
+//	
+//	@RequestMapping("/mq/fanout")
+//    @ResponseBody
+//    public ResultDTO<String> fanout() {
+//		mqSender.sendFanout("hello,world");
+//        return ResultDTO.success("Hello，world");
+//    }
+//	@RequestMapping("/mq/header")
+//    @ResponseBody
+//    public ResultDTO<String> header() {
+//		mqSender.sendHeader("hello,world");
+//        return ResultDTO.success("Hello，world");
+//    }
 }

@@ -40,10 +40,10 @@ public class OrderService {
 		orderInfo.setOrderChannel(1);
 		orderInfo.setStatus(SecondStatusEnum.NO_PAY.getStatus());
 		orderInfo.setUserId(user.getId());
-		long orderId = orderDao.insert(orderInfo);
+		orderDao.insert(orderInfo);
 		SecondOrder secondOrder = new SecondOrder();
 		secondOrder.setGoodsId(goods.getId());
-		secondOrder.setOrderId(orderId);
+		secondOrder.setOrderId(orderInfo.getId());
 		secondOrder.setUserId(user.getId());
 		orderDao.insertSecondOrder(secondOrder);
 		//写缓存
@@ -55,6 +55,9 @@ public class OrderService {
 	public OrderInfo getOrderById(long orderId) {
 		return orderDao.getOrderById(orderId);
 	}
-	
+	public void deleteOrders() {
+		orderDao.deleteOrders();
+		orderDao.deleteMiaoshaOrders();
+	}
 
 }
