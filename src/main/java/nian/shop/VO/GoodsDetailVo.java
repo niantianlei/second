@@ -9,5 +9,5 @@ public class GoodsDetailVo {
 	private int remainSeconds = 0;
 	private GoodsVo goods ;
 	private SecondUser user;
-	
+	private int isFirst;
 }

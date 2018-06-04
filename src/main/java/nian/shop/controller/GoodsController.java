@@ -17,13 +17,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.thymeleaf.spring4.context.SpringWebContext;
 import org.thymeleaf.spring4.view.ThymeleafViewResolver;
 
+import com.alibaba.fastjson.JSON;
+
 import nian.shop.DTO.ResultDTO;
 import nian.shop.VO.GoodsDetailVo;
 import nian.shop.VO.GoodsVo;
+import nian.shop.entity.SecondOrder;
 import nian.shop.entity.SecondUser;
 import nian.shop.redis.GoodsKey;
 import nian.shop.service.GoodsService;
+import nian.shop.service.OrderService;
 import nian.shop.service.RedisService;
+import nian.shop.service.SecondKillService;
 import nian.shop.service.SecondUserService;
 import nian.shop.utils.ValidatorUtil;
 
@@ -42,6 +47,8 @@ public class GoodsController {
 	ThymeleafViewResolver thymeleafViewResolver;
 	@Autowired
 	ApplicationContext applicationContext;
+	@Autowired
+	OrderService orderService;
 	
 /*    @RequestMapping("/to_list")
     public String list(HttpServletResponse response, Model model,
@@ -91,7 +98,7 @@ public class GoodsController {
     	return html;
     }
     
-    @RequestMapping(value="/to_detail2/{goodsId}",produces="text/html")
+    @RequestMapping(value="/to_detail2/{goodsId}", produces="text/html")
     @ResponseBody
     public String detail2(HttpServletRequest request, HttpServletResponse response, Model model,SecondUser user,
     		@PathVariable("goodsId")long goodsId) {
@@ -137,7 +144,7 @@ public class GoodsController {
     
     @RequestMapping(value="/detail/{goodsId}")
     @ResponseBody
-    public ResultDTO<GoodsDetailVo> detail(HttpServletRequest request, HttpServletResponse response, Model model,SecondUser user,
+    public ResultDTO<GoodsDetailVo> detail(HttpServletRequest request, HttpServletResponse response, Model model, SecondUser user,
     		@PathVariable("goodsId")long goodsId) {
 
     	GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
@@ -162,7 +169,20 @@ public class GoodsController {
     	goodsDetailVo.setUser(user);
     	goodsDetailVo.setMiaoshaStatus(miaoshaStatus);
     	goodsDetailVo.setRemainSeconds(remainSeconds);
+    	//新增        首次秒杀field
+    	goodsDetailVo.setIsFirst(isFirst(user, goodsId));
+    	log.info(JSON.toJSONString("商品详情信息: " + goodsDetailVo));
     	return ResultDTO.success(goodsDetailVo);
+    }
+    
+    //判断是否为首次秒杀
+    private int isFirst(SecondUser user, long goodsId) {
+    	SecondOrder order = orderService.getSecondOrderByUserIdandGoodsId(user.getId(), goodsId);
+    	if(order == null) {
+    		return 1;
+    	} else {
+    		return 0;
+    	}
     }
 /*    @RequestMapping("/to_detail/{goodsId}")
     public String detail(Model model, SecondUser user,

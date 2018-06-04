@@ -1,14 +1,23 @@
 package nian.shop.controller;
 
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,11 +39,14 @@ import nian.shop.service.OrderService;
 import nian.shop.service.RedisService;
 import nian.shop.service.SecondKillService;
 import nian.shop.service.SecondUserService;
+import nian.shop.utils.MD5Util;
 import nian.shop.utils.SecondResEnum;
+import nian.shop.utils.UUIDUtil;
 
 @Controller
 @RequestMapping("/second")
 public class SecondController implements InitializingBean {
+	private static Logger log = LoggerFactory.getLogger(SecondController.class);
 
 	@Autowired
 	SecondUserService userService;
@@ -56,10 +68,11 @@ public class SecondController implements InitializingBean {
 	
 	private Map<Long, Boolean> localOverMap = new HashMap<>();
 	
-    @PostMapping("/do_secondKill")
+    @PostMapping("/{path}/do_secondKill")
     @ResponseBody
     public ResultDTO<String> secondKill(Model model, SecondUser user,
-    		@RequestParam("goodsId")long goodsId) {
+    		@RequestParam("goodsId")long goodsId, 
+    		@PathVariable("path") String path) {
     	model.addAttribute("user", user);
     	if(user == null) {
     		return ResultDTO.fail("session错误");
@@ -82,6 +95,11 @@ public class SecondController implements InitializingBean {
         return ResultDTO.success(orderInfo);
         */
     	
+    	//验证path
+    	boolean check = secondKillService.checkPath(user, goodsId, path);
+    	if(!check){
+    		return ResultDTO.fail("请求错误，path问题");
+    	}
     	//内存标记，减少redis访问
     	boolean over = localOverMap.get(goodsId);
     	if(over) {
@@ -156,6 +174,60 @@ public class SecondController implements InitializingBean {
 		redisService.delete(OrderKey.getMiaoshaOrderByUidGid);
 		redisService.delete(SecondKey.isGoodsOver);
 		secondKillService.reset(goodsList);
+		log.info("初始化成功》》》》》》》》》》》》》》");
 		return ResultDTO.success(true);
 	}
+
+    @GetMapping("/path")
+    @ResponseBody
+    public ResultDTO<String> getSecondKillPath(Model model, SecondUser user,
+    		@RequestParam("goodsId")long goodsId, 
+    		@RequestParam(value="verifyCode", defaultValue="0")int verifyCode) {
+    	model.addAttribute("user", user);
+    	if(user == null) {
+    		return ResultDTO.fail("session错误");
+    	}
+    	boolean check = secondKillService.checkVerifyCode(user, goodsId, verifyCode);
+    	if(!check) {
+    		return ResultDTO.fail("请求错误, path验证失败");
+    	}
+    	
+    	String path = secondKillService.createSecondKillPath(user, goodsId);
+    	return ResultDTO.success(path);
+    }
+    
+    //第一次秒杀
+    @GetMapping("/path/first")
+    @ResponseBody
+    public ResultDTO<String> firstGetSecondKillPath(Model model, SecondUser user,
+    		@RequestParam("goodsId")long goodsId) {
+    	model.addAttribute("user", user);
+    	if(user == null) {
+    		return ResultDTO.fail("session错误");
+    	}
+    	String path = secondKillService.createSecondKillPath(user, goodsId);
+    	return ResultDTO.success(path);
+    }
+    
+    
+    
+    @GetMapping("/verifyCode")
+    @ResponseBody
+    public ResultDTO<String> getSecondKillVerifyCod(HttpServletResponse response, SecondUser user,
+    		@RequestParam("goodsId")long goodsId) {
+    	if(user == null) {
+    		return ResultDTO.fail("session错误");
+    	}
+    	try {
+    		BufferedImage image  = secondKillService.createVerifyCode(user, goodsId);
+    		OutputStream out = response.getOutputStream();
+    		ImageIO.write(image, "JPEG", out);
+    		out.flush();
+    		out.close();
+    		return null;
+    	}catch(Exception e) {
+    		e.printStackTrace();
+    		return ResultDTO.fail("秒杀失败");
+    	}
+    }
 }
