@@ -27,9 +27,10 @@ import com.nian.rabbitmq.SecondKillMessage;
 
 import nian.shop.DTO.ResultDTO;
 import nian.shop.VO.GoodsVo;
-import nian.shop.entity.OrderInfo;
+import nian.shop.access.AccessLimit;
 import nian.shop.entity.SecondOrder;
 import nian.shop.entity.SecondUser;
+import nian.shop.redis.AccessKey;
 import nian.shop.redis.GoodsKey;
 import nian.shop.redis.OrderKey;
 import nian.shop.redis.SecondKey;
@@ -39,9 +40,6 @@ import nian.shop.service.OrderService;
 import nian.shop.service.RedisService;
 import nian.shop.service.SecondKillService;
 import nian.shop.service.SecondUserService;
-import nian.shop.utils.MD5Util;
-import nian.shop.utils.SecondResEnum;
-import nian.shop.utils.UUIDUtil;
 
 @Controller
 @RequestMapping("/second")
@@ -130,6 +128,7 @@ public class SecondController implements InitializingBean {
      * -1：秒杀失败
      * 0： 排队中
      * */
+    @AccessLimit(seconds = 5, maxCount = 10, needLogin = true)
     @GetMapping("/result")
     @ResponseBody
     public ResultDTO<Long> miaoshaResult(Model model, SecondUser user,
@@ -178,15 +177,16 @@ public class SecondController implements InitializingBean {
 		return ResultDTO.success(true);
 	}
 
+	@AccessLimit(seconds = 5, maxCount = 5, needLogin = true)
     @GetMapping("/path")
     @ResponseBody
-    public ResultDTO<String> getSecondKillPath(Model model, SecondUser user,
+    public ResultDTO<String> getSecondKillPath(HttpServletRequest request, SecondUser user,
     		@RequestParam("goodsId")long goodsId, 
     		@RequestParam(value="verifyCode", defaultValue="0")int verifyCode) {
-    	model.addAttribute("user", user);
     	if(user == null) {
     		return ResultDTO.fail("session错误");
     	}
+    	
     	boolean check = secondKillService.checkVerifyCode(user, goodsId, verifyCode);
     	if(!check) {
     		return ResultDTO.fail("请求错误, path验证失败");
@@ -197,14 +197,15 @@ public class SecondController implements InitializingBean {
     }
     
     //第一次秒杀
+    @AccessLimit(seconds = 5, maxCount = 5, needLogin = true)
     @GetMapping("/path/first")
     @ResponseBody
-    public ResultDTO<String> firstGetSecondKillPath(Model model, SecondUser user,
+    public ResultDTO<String> firstGetSecondKillPath(HttpServletRequest request, SecondUser user,
     		@RequestParam("goodsId")long goodsId) {
-    	model.addAttribute("user", user);
     	if(user == null) {
     		return ResultDTO.fail("session错误");
     	}
+    	
     	String path = secondKillService.createSecondKillPath(user, goodsId);
     	return ResultDTO.success(path);
     }
@@ -213,7 +214,7 @@ public class SecondController implements InitializingBean {
     
     @GetMapping("/verifyCode")
     @ResponseBody
-    public ResultDTO<String> getSecondKillVerifyCod(HttpServletResponse response, SecondUser user,
+    public ResultDTO<String> getSecondKillVerifyCode(HttpServletResponse response, SecondUser user,
     		@RequestParam("goodsId")long goodsId) {
     	if(user == null) {
     		return ResultDTO.fail("session错误");

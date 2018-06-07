@@ -12,6 +12,7 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
+import nian.shop.access.UserContext;
 import nian.shop.entity.SecondUser;
 import nian.shop.service.SecondUserService;
 import nian.shop.utils.ValidatorUtil;
@@ -29,7 +30,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
 	public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer,
 			NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-		HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
+		/*HttpServletRequest request = webRequest.getNativeRequest(HttpServletRequest.class);
 		HttpServletResponse response = webRequest.getNativeResponse(HttpServletResponse.class);
 		
 		String paramToken = request.getParameter(SecondUserService.COOKIE_NAME_TOKEN);
@@ -38,7 +39,8 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 			return null;
 		}
 		String token = ValidatorUtil.isEmpty(paramToken)?cookieToken:paramToken;
-		return userService.getByToken(response, token);
+		return userService.getByToken(response, token);*/
+		return UserContext.getUser();
 	}
 
 	private String getCookieValue(HttpServletRequest request, String cookiName) {
