@@ -2,6 +2,7 @@ package nian.shop.controller;
 
 import java.awt.image.BufferedImage;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.rocketmq.client.exception.MQBrokerException;
+import com.alibaba.rocketmq.client.exception.MQClientException;
+import com.alibaba.rocketmq.remoting.exception.RemotingException;
 import com.nian.rabbitmq.SecondKillMessage;
 
 import nian.shop.DTO.ResultDTO;
@@ -34,6 +38,7 @@ import nian.shop.redis.AccessKey;
 import nian.shop.redis.GoodsKey;
 import nian.shop.redis.OrderKey;
 import nian.shop.redis.SecondKey;
+import nian.shop.rocketmq.RocketMQSender;
 import nian.shop.service.GoodsService;
 import nian.shop.service.MqSender;
 import nian.shop.service.OrderService;
@@ -64,13 +69,17 @@ public class SecondController implements InitializingBean {
 	@Autowired
 	MqSender mqSender;
 	
+	@Autowired
+	RocketMQSender rocketMQSender;
+	
+	
 	private Map<Long, Boolean> localOverMap = new HashMap<>();
 	
     @PostMapping("/{path}/do_secondKill")
     @ResponseBody
     public ResultDTO<String> secondKill(Model model, SecondUser user,
     		@RequestParam("goodsId")long goodsId, 
-    		@PathVariable("path") String path) {
+    		@PathVariable("path") String path) throws UnsupportedEncodingException, InterruptedException, RemotingException, MQClientException, MQBrokerException {
     	model.addAttribute("user", user);
     	if(user == null) {
     		return ResultDTO.fail("session错误");
@@ -118,7 +127,8 @@ public class SecondController implements InitializingBean {
     	SecondKillMessage sm = new SecondKillMessage();
     	sm.setUser(user);
     	sm.setGoodsId(goodsId);
-    	mqSender.sendSecondKillMessage(sm);
+    	//rocketmq
+    	rocketMQSender.sendSecondKillMessage(sm);
     	return ResultDTO.success("成功进入排队中");
     	
     }

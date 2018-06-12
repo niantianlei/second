@@ -1,14 +1,22 @@
 package nian.shop.controller;
 
+import java.io.UnsupportedEncodingException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.rocketmq.client.exception.MQBrokerException;
+import com.alibaba.rocketmq.client.exception.MQClientException;
+import com.alibaba.rocketmq.remoting.exception.RemotingException;
+
 import nian.shop.DTO.ResultDTO;
 import nian.shop.entity.User;
 import nian.shop.redis.UserKey;
+import nian.shop.rocketmq.RocketMQReceiver;
+import nian.shop.rocketmq.RocketMQSender;
 import nian.shop.service.MqSender;
 import nian.shop.service.RedisService;
 import nian.shop.service.UserService;
@@ -22,6 +30,10 @@ public class DemoController {
 	RedisService redisService;
 	@Autowired
 	MqSender mqSender;
+	@Autowired
+	RocketMQSender rocketMQSender;
+	@Autowired
+	RocketMQReceiver rocketMQReceiver;
 
 	@RequestMapping("/")
 	@ResponseBody
@@ -76,6 +88,30 @@ public class DemoController {
 		user.setName("123456");
 		redisService.set(UserKey.getById, "" + 1, user);
 		return ResultDTO.success(true);
+	}
+	
+	@RequestMapping("/mq")
+	@ResponseBody
+	ResultDTO<String> mq() {
+		try {
+			rocketMQSender.sendSecondKillMessage("hello, world");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ResultDTO.success("hello, world");
+	}
+	
+	@RequestMapping("/mq1")
+	@ResponseBody
+	ResultDTO<String> mq1() {
+		try {
+			rocketMQSender.sendSecondKillMessage("hello, tianlei");
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return ResultDTO.success("hello, world");
 	}
 	
 //	@RequestMapping("/mq")

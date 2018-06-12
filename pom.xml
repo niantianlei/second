@@ -82,7 +82,22 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-amqp</artifactId>
     </dependency>
-	
+    
+    <!-- https://mvnrepository.com/artifact/com.alibaba.rocketmq/rocketmq-client -->
+<dependency>
+    <groupId>com.alibaba.rocketmq</groupId>
+    <artifactId>rocketmq-client</artifactId>
+    <version>3.6.2.Final</version>
+</dependency>
+    <!-- https://mvnrepository.com/artifact/com.alibaba.rocketmq/rocketmq-all -->
+<dependency>
+    <groupId>com.alibaba.rocketmq</groupId>
+    <artifactId>rocketmq-all</artifactId>
+    <version>3.2.6</version>
+    <type>pom</type>
+</dependency>
+    
+
 </dependencies>
 <build>
   	<finalName>${project.artifactId}</finalName>  
