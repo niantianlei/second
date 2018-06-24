@@ -1,5 +1,7 @@
 package nian.shop.redis;
 
+import java.util.Random;
+
 public abstract class BasePrefix implements KeyPrefix{
 	
 	private int expireSeconds;
@@ -10,8 +12,21 @@ public abstract class BasePrefix implements KeyPrefix{
 		this(0, prefix);
 	}
 	
-	public BasePrefix( int expireSeconds, String prefix) {
+	public BasePrefix(int expireSeconds, String prefix) {
 		this.expireSeconds = expireSeconds;
+		this.prefix = prefix;
+	}
+	
+	public BasePrefix(int expireSeconds, boolean addRandom, String prefix) {
+		if(addRandom) {
+			Random random = new Random(System.currentTimeMillis());
+			int extend = expireSeconds / 5;
+			int ran = random.nextInt(extend);
+			int finalExtend = extend / 2 - ran;
+			this.expireSeconds = expireSeconds + finalExtend;
+		} else {
+			this.expireSeconds = expireSeconds;
+		}
 		this.prefix = prefix;
 	}
 	

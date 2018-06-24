@@ -1,5 +1,6 @@
 package nian.shop.service;
 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,4 +32,5 @@ public class UserService {
 		userDao.insert(u2);
 		return true;
 	}
+
 }

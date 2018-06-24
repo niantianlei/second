@@ -79,7 +79,7 @@ public class GoodsController {
     	model.addAttribute("user", user);
     	
     	//取缓存
-    	String html = redisService.get(GoodsKey.getGoodsList, "", String.class);
+    	String html = redisService.get(new GoodsKey(30, true, "gl"), "", String.class);
     	if(!ValidatorUtil.isEmpty(html)) {
     		return html;
     	}
@@ -91,7 +91,7 @@ public class GoodsController {
     	//手动渲染
     	html = thymeleafViewResolver.getTemplateEngine().process("goods_list", ctx);
     	if(!ValidatorUtil.isEmpty(html)) {
-    		redisService.set(GoodsKey.getGoodsList, "", html);
+    		redisService.set(new GoodsKey(30, true, "gl"), "", html);
     		
     	}
     	
@@ -105,7 +105,7 @@ public class GoodsController {
     	model.addAttribute("user", user);
     	
     	//取缓存
-    	String html = redisService.get(GoodsKey.getGoodsDetail, "" + goodsId, String.class);
+    	String html = redisService.get(new GoodsKey(60, true, "gd"), "" + goodsId, String.class);
     	if(!ValidatorUtil.isEmpty(html)) {
     		return html;
     	}
@@ -137,7 +137,7 @@ public class GoodsController {
     			request.getServletContext(),request.getLocale(), model.asMap(), applicationContext );
     	html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", ctx);
     	if(!ValidatorUtil.isEmpty(html)) {
-    		redisService.set(GoodsKey.getGoodsDetail, "" + goodsId, html);
+    		redisService.set(new GoodsKey(60, true, "gd"), "" + goodsId, html);
     	}
     	return html;
     }

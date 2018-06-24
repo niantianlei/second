@@ -9,7 +9,7 @@ public class SecondException extends RuntimeException {
 	private ResultDTO<?> resultDTO;
 	
 	public SecondException(ResultDTO<?> res) {
-		super(res.toString());
+		super(res.getMsg());
 		resultDTO = res;
 	}
 

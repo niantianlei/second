@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import nian.shop.DTO.ResultDTO;
 import nian.shop.VO.LoginVO;
+import nian.shop.bloomFilter.BloomFilterCache;
 import nian.shop.dao.SecondUserDao;
 import nian.shop.entity.SecondUser;
 import nian.shop.exception.SecondException;
@@ -82,6 +83,12 @@ public class SecondUserService {
 		if(loginVO == null) {
 			throw new SecondException(ResultDTO.error(ResultCode.SERVER_ERROR.getCode(), "服务端异常"));
 		}
+		
+		//首先要过布隆过滤器
+		if(BloomFilterCache.bloomFilter.check(loginVO.getMobile())) {
+			throw new SecondException(ResultDTO.fail("该用户不存在（未通过布隆过滤器）"));
+		}
+		
 		String mobile = loginVO.getMobile();
 		String formPassword = loginVO.getPassword();
 		//判断手机号是否存在
