@@ -2,7 +2,6 @@ package nian.shop.config;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
@@ -15,7 +14,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import nian.shop.access.UserContext;
 import nian.shop.entity.SecondUser;
 import nian.shop.service.SecondUserService;
-import nian.shop.utils.ValidatorUtil;
 
 @Service
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {

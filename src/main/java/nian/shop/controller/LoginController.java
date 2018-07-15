@@ -18,7 +18,6 @@ import nian.shop.service.SecondUserService;
 @Controller
 @RequestMapping("/login")
 public class LoginController {
-	private static Logger log = LoggerFactory.getLogger(LoginController.class);
 	@Autowired
 	RedisService redisService;
 	@Autowired
@@ -33,8 +32,6 @@ public class LoginController {
     @RequestMapping("/do_login")
     @ResponseBody
     public ResultDTO<String> doLogin(HttpServletResponse response, @Valid LoginVO loginVO) {
-    	log.info(loginVO.toString());
-    	//登录
     	String token = secondUserService.login(response, loginVO);
     	return ResultDTO.success(token);
     }

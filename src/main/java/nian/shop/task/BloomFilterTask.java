@@ -33,7 +33,7 @@ public class BloomFilterTask {
 			bloomFilter.add(secondUser.getId().toString());
 		});
 		BloomFilterCache.bloomFilter = bloomFilter;
-		log.info("bloomFilter初始化完毕！");
+//		log.info("bloomFilter初始化完毕！");
 //		System.out.println("测试结果1：" + BloomFilterCache.bloomFilter.check("13000000981"));
 //		Long phoneTest = 33000000981l;
 //		System.out.println("测试结果2：" + BloomFilterCache.bloomFilter.check(phoneTest.toString()));

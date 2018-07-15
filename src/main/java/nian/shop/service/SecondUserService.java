@@ -3,8 +3,12 @@ package nian.shop.service;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.alibaba.rocketmq.shade.com.alibaba.fastjson.JSON;
 
 import nian.shop.DTO.ResultDTO;
 import nian.shop.VO.LoginVO;
@@ -25,7 +29,7 @@ import nian.shop.utils.ValidatorUtil;
  */
 @Service
 public class SecondUserService {
-
+	private static Logger log = LoggerFactory.getLogger(SecondUserService.class);
 	public static final String COOKIE_NAME_TOKEN = "token";
 	
 	@Autowired
@@ -80,12 +84,13 @@ public class SecondUserService {
 	}
 
 	public String login(HttpServletResponse response, LoginVO loginVO) {
+		log.info("登陸信息: " + JSON.toJSONString(loginVO));
 		if(loginVO == null) {
 			throw new SecondException(ResultDTO.error(ResultCode.SERVER_ERROR.getCode(), "服务端异常"));
 		}
 		
 		//首先要过布隆过滤器
-		if(BloomFilterCache.bloomFilter.check(loginVO.getMobile())) {
+		if(!BloomFilterCache.bloomFilter.check(loginVO.getMobile())) {
 			throw new SecondException(ResultDTO.fail("该用户不存在（未通过布隆过滤器）"));
 		}
 		
