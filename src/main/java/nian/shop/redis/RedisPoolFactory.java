@@ -15,9 +15,9 @@ public class RedisPoolFactory {
 	@Bean
 	public JedisPool JedisPoolFactory() {
 		JedisPoolConfig jedispoolConfig = new JedisPoolConfig();
-		jedispoolConfig.setMaxIdle(jedispoolConfig.getMaxIdle());
-		jedispoolConfig.setMaxTotal(jedispoolConfig.getMaxTotal());
-		jedispoolConfig.setMaxWaitMillis(jedispoolConfig.getMaxWaitMillis() * 1000);
+		jedispoolConfig.setMaxIdle(redisConfig.getPoolMaxIdle());
+		jedispoolConfig.setMaxTotal(redisConfig.getPoolMaxTotal());
+		jedispoolConfig.setMaxWaitMillis(redisConfig.getPoolMaxWait() * 1000);
 		JedisPool jedisPool = new JedisPool(jedispoolConfig, redisConfig.getHost(), redisConfig.getPort(),
 				redisConfig.getTimeout() * 1000);
 		return jedisPool;
