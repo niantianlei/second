@@ -37,7 +37,7 @@ public class LogAspect {
 		if (args != null) {
 			String[] paramStrs = new String[args.length];
 			for (int i = args.length - 1; i >= 0; i--) {
-				paramStrs[i] = JSON.toJSONString(args[i]);
+				paramStrs[i] = args[i].toString();
 			}
 
 			String className = joinPoint.getSignature().getDeclaringTypeName();
