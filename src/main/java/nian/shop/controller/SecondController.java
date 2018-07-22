@@ -112,16 +112,17 @@ public class SecondController implements InitializingBean {
     	if(over) {
     		return ResultDTO.fail("秒杀已结束");
     	}
+    	
+    	//判断是否已经秒杀到了
+    	SecondOrder order = orderService.getSecondOrderByUserIdandGoodsId(user.getId(), goodsId);
+    	if(order != null) {
+    		return ResultDTO.fail("重复秒杀错误");
+    	}
     	//预减库存
     	long stock = redisService.decr(GoodsKey.getSecondKillGoodsStock, "" + goodsId);//10
     	if(stock < 0) {
     		 localOverMap.put(goodsId, true);
     		return ResultDTO.fail("秒杀已结束");
-    	}
-    	//判断是否已经秒杀到了
-    	SecondOrder order = orderService.getSecondOrderByUserIdandGoodsId(user.getId(), goodsId);
-    	if(order != null) {
-    		return ResultDTO.fail("重复秒杀错误");
     	}
     	//入队
     	SecondKillMessage sm = new SecondKillMessage();
@@ -187,7 +188,7 @@ public class SecondController implements InitializingBean {
 		return ResultDTO.success(true);
 	}
 
-	@AccessLimit(seconds = 5, maxCount = 5, needLogin = true)
+	@AccessLimit(seconds = 30, maxCount = 5, needLogin = true)
     @GetMapping("/path")
     @ResponseBody
     public ResultDTO<String> getSecondKillPath(HttpServletRequest request, SecondUser user,
@@ -207,7 +208,7 @@ public class SecondController implements InitializingBean {
     }
     
     //第一次秒杀
-    @AccessLimit(seconds = 5, maxCount = 5, needLogin = true)
+    @AccessLimit(seconds = 30, maxCount = 5, needLogin = true)
     @GetMapping("/path/first")
     @ResponseBody
     public ResultDTO<String> firstGetSecondKillPath(HttpServletRequest request, SecondUser user,
@@ -220,7 +221,7 @@ public class SecondController implements InitializingBean {
     	return ResultDTO.success(path);
     }
     
-    
+
     
     @GetMapping("/verifyCode")
     @ResponseBody

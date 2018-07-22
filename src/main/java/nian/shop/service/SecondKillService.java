@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
@@ -123,7 +124,7 @@ public class SecondKillService {
 		g.drawString(verifyCode, 8, 24);
 		g.dispose();
 		//把验证码存到redis中
-		int rnd = calc(verifyCode);
+		int rnd = calculate(verifyCode);
 		redisService.set(SecondKey.secondKillVerifyCode, user.getId() + "," + goodsId, rnd);
 		//输出图片	
 		return image;
@@ -141,17 +142,6 @@ public class SecondKillService {
 		return true;
 	}
 	
-	//计算结果
-	private static int calc(String exp) {
-		try {
-			ScriptEngineManager manager = new ScriptEngineManager();
-			ScriptEngine engine = manager.getEngineByName("JavaScript");
-			return (Integer)engine.eval(exp);
-		}catch(Exception e) {
-			e.printStackTrace();
-			return 0;
-		}
-	}
 
 	private static char[] ops = new char[] {'+', '-', '*'};
 
@@ -168,6 +158,37 @@ public class SecondKillService {
 		return exp;
 	}
 	public static void main(String[] args) {
-		System.out.println(calc("1+3*5"));
+		System.out.println(calculate("1+3*5"));
 	}
+	
+	private static int calculate(String s) {
+        if(s == null || s.length() == 0) return 0;
+        int len = s.length();
+        Stack<Integer> stack = new Stack<>();
+        int num = 0;
+        char sign = '+';
+        for(int i = 0; i < len; i++) {
+            if(Character.isDigit(s.charAt(i))) {
+                num = num * 10 + s.charAt(i) - '0';
+            }
+            if(!Character.isDigit(s.charAt(i)) && ' ' != s.charAt(i) || i == len - 1) {
+                if(sign == '-') {
+                    stack.push(-num);
+                } else if (sign == '+') {
+                    stack.push(num);
+                } else if (sign == '*') {
+                    stack.push(stack.pop() * num);
+                } else if (sign == '/') {
+                    stack.push(stack.pop() / num);
+                }
+                sign = s.charAt(i);
+                num = 0;
+            }
+        }
+        int res = 0;
+        for(int i : stack) {
+            res += i;
+        }
+        return res;
+    }
 }

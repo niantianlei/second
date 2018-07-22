@@ -20,9 +20,9 @@ import javax.validation.Payload;
 @Constraint(validatedBy = {IsMobileValidator.class })
 public @interface  IsMobile {
 	
-	boolean required() default true;
+	boolean required() default true;//是否需要传
 	
-	String message() default "手机号码格式错误";
+	String message() default "手机号码格式错误";//提示信息
 
 	Class<?>[] groups() default { };
 
